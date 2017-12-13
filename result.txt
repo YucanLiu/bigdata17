@@ -1,0 +1,65 @@
+Delay Days: 5
+Ridge Regressor Accuracy is 0.482821
+Lasso Regressor Accuracy is 0.473779
+Random Forest Regressor Accuracy is 0.495479
+XGBoost Regressor Accuracy is 0.486438 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.508137
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.518987
+XGBoost Regressor Accuracy is 0.481013 
+ 
+Delay Days: 20
+Ridge Regressor Accuracy is 0.531646
+Lasso Regressor Accuracy is 0.490054
+Random Forest Regressor Accuracy is 0.491863
+XGBoost Regressor Accuracy is 0.511754 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.479204
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.529837
+XGBoost Regressor Accuracy is 0.484629 
+ 
+Delay Days: 40
+Ridge Regressor Accuracy is 0.502712
+Lasso Regressor Accuracy is 0.490054
+Random Forest Regressor Accuracy is 0.520796
+XGBoost Regressor Accuracy is 0.493671 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.511754
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.464738
+XGBoost Regressor Accuracy is 0.475588 
+ 
+Delay Days: 60
+Ridge Regressor Accuracy is 0.455696
+Lasso Regressor Accuracy is 0.482821
+Random Forest Regressor Accuracy is 0.520796
+XGBoost Regressor Accuracy is 0.488246 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.484629
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.470163
+XGBoost Regressor Accuracy is 0.491863 
+ 
+Delay Days: 100
+Ridge Regressor Accuracy is 0.484629
+Lasso Regressor Accuracy is 0.475588
+Random Forest Regressor Accuracy is 0.493671
+XGBoost Regressor Accuracy is 0.526221 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.518987
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.531646
+XGBoost Regressor Accuracy is 0.540687 
+ 
+Delay Days: 120
+Ridge Regressor Accuracy is 0.526221
+Lasso Regressor Accuracy is 0.499096
+Random Forest Regressor Accuracy is 0.504521
+XGBoost Regressor Accuracy is 0.509946 
+KMeans + Regression Result: 
+Ridge Regressor Accuracy is 0.484629
+Lasso Regressor Accuracy is 0.500904
+Random Forest Regressor Accuracy is 0.506329
+XGBoost Regressor Accuracy is 0.500904 
