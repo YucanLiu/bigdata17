@@ -9,9 +9,9 @@ from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.utils import check_random_state
 
-train_data_path = 'data_all/output.csv'
+train_data_path = 'close_data/output_close.csv'
 # train_data_path = 'test1/samples.csv'
-test_data_path = 'data_all/JD.csv'
+test_data_path = 'close_data/BABA_close.csv'
 
 class KernelKMeans(BaseEstimator, ClusterMixin):
     """
@@ -154,7 +154,7 @@ def cluster_test(train_data,test_data):
     corr_data_num = 100
 
     while corr_data_num > 20:
-        temp_train_data = corr_train_data[gap-d:len(train_data)-d].transpose()
+        temp_train_data = corr_train_data[183-d:997-d].transpose()
         # print("Temp Train Data size: " + str(len(temp_train_data)) + " * " + str(len(temp_train_data[0])))
 
         clf = KernelKMeans(n_clusters=n_c, max_iter=5000)
@@ -211,87 +211,79 @@ def cluster_test(train_data,test_data):
     #mpl.show()
 
 def RidgeRegression(train_data, train_label):
-    accuracy1 = 0
-    for i in range(max_iter_days):
-        X_train = train_data[gap + i - d : gap + 260 + i - d]
+    mae1 = 0
+    for i in range(r):
+        X_train = train_data[183 + i - d : 183 + 260 + i - d]
         Y_train = train_label[i : 260 + i]
-        X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
+        X_test = train_data[183 + 260 + i - d : 183 + 261 + i - d]
         Y_test = train_label[260 + i : 261 + i]
 
         reg1 = Ridge()
         reg1 = reg1.fit(X_train, Y_train)
         predict1 = reg1.predict(X_test)
-        if (predict1 <= 0 and Y_test <= 0) or (predict1 > 0 and Y_test > 0):
-            accuracy1 = accuracy1 + 1
-    accuracy1 = accuracy1 / max_iter_days
-    print("Ridge Regressor Accuracy is %f" % accuracy1)
+        mae1 =  mae1 + abs(predict1 - Y_test)
+    mae1 = mae1/r
+    print("Ridge Regressor MAE is %f" % mae1)
 
 def LassoRegression(train_data, train_label):
-    accuracy2 = 0
-    for i in range(max_iter_days):
-        X_train = train_data[gap + i - d : gap + 260 + i - d]
+    mae2 = 0
+    for i in range(r):
+        X_train = train_data[183 + i - d : 183 + 260 + i - d]
         Y_train = train_label[i : 260 + i]
-        X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
+        X_test = train_data[183 + 260 + i - d : 183 + 261 + i - d]
         Y_test = train_label[260 + i : 261 + i]
 
-        reg2 = Lasso()
+        reg2 = Lasso(max_iter=2000)
         reg2 = reg2.fit(X_train, Y_train)
         predict2 = reg2.predict(X_test)
-        if (predict2 <= 0 and Y_test <= 0) or (predict2 > 0 and Y_test > 0):
-            accuracy2 = accuracy2 + 1
-    accuracy2 = accuracy2 / max_iter_days
-    print("Lasso Regressor Accuracy is %f" % accuracy2)
+        mae2 =  mae2 + abs(predict2 - Y_test)
+    mae2 = mae2/r
+    print("Lasso Regressor MAE is %f" % mae2)
 
 def RandomForestRegreesion(train_data, train_label):
-    accuracy3 = 0
-    for i in range(max_iter_days):
-        X_train = train_data[gap + i - d : gap + 260 + i - d]
+    mae3 = 0
+    for i in range(r):
+        X_train = train_data[183 + i - d : 183 + 260 + i - d]
         Y_train = train_label[i : 260 + i]
-        X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
+        X_test = train_data[183 + 260 + i - d : 183 + 261 + i - d]
         Y_test = train_label[260 + i : 261 + i]
 
         reg3 = RandomForestRegressor()
         Y_train1 = np.ravel(Y_train)
         reg3 = reg3.fit(X_train, Y_train1)
         predict3 = reg3.predict(X_test)
-        if (predict3 <= 0 and Y_test <= 0) or (predict3 > 0 and Y_test > 0):
-            accuracy3 = accuracy3 + 1
-    accuracy3 = accuracy3 / max_iter_days
-    print("Random Forest Regressor Accuracy is %f" % accuracy3)
+        mae3 = mae3 + abs(predict3 - Y_test)
+    mae3 = mae3 / r
+    print("Random Forest Regressor MAE is %f" % mae3)
 
 def BoostingRegression(train_data, train_label):
-    accuracy4 = 0
-    for i in range(max_iter_days):
-        X_train = train_data[gap + i - d : gap + 260 + i - d]
+    mae4 = 0
+    for i in range(r):
+        X_train = train_data[183 + i - d : 183 + 260 + i - d]
         Y_train = train_label[i : 260 + i]
-        X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
+        X_test = train_data[183 + 260 + i - d : 183 + 261 + i - d]
         Y_test = train_label[260 + i : 261 + i]
 
         reg4 = XGBRegressor(max_depth=4, min_child_weight=4, gamma=0.4, subsample=0.6, colsample_bytree=0.6,
                             reg_alpha=1e-5)
         reg4 = reg4.fit(X_train, Y_train)
         predict4 = reg4.predict(X_test)
-        if (predict4 <= 0 and Y_test <= 0) or (predict4 > 0 and Y_test > 0):
-            accuracy4 = accuracy4 + 1
-    accuracy4 = accuracy4 / max_iter_days
-    print("XGBoost Regressor Accuracy is %f " % accuracy4)
+        mae4 = mae4 + abs(predict4 - Y_test)
+    mae4 = mae4 / r
+    print("XGBoost Regressor MAE is %f" % mae4)
 
 if __name__=='__main__':
     ###PARAMETER
-    delay = [5, 20, 40, 60, 100, 120]  # date of delays
-    # delay = [5]
+    # delay = [5, 20, 40, 60, 100, 120]  # date of delays
+    delay = [5]
     n_c = 10  # number of clusters
     iters = 5000  # number of iterations
+    r = 10
 
     #Row = time, Columns = companies
     samples, target = import_data( )
     train_data = samples
     train_label = target
-
-    train_data_days = len(train_data)
-    test_data_days = len(train_label)
-    gap = train_data_days - test_data_days
-    max_iter_days = test_data_days - 260
     print("Train Data size: " + str(len(train_data)) + " * " + str(len(train_data[0])))
     print("Test Data size: " + str(len(train_label)) + " * " + str(len(train_label[0])))
 
