@@ -9,9 +9,10 @@ from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.utils import check_random_state
 
+company_name = 'MOMO.csv'
 train_data_path = 'data_all/output.csv'
 # train_data_path = 'test1/samples.csv'
-test_data_path = 'data_all/JD.csv'
+test_data_path = 'data_all/' + company_name
 
 class KernelKMeans(BaseEstimator, ClusterMixin):
     """
@@ -177,10 +178,12 @@ def cluster_test(train_data,test_data):
         # print("Correlating Test Data size: " + str(len(corr_train_data)) + " * " + str(len(corr_train_data[0])))
 
     print("KMeans + Regression Result: ")
-    RidgeRegression(corr_train_data,test_data)
-    LassoRegression(corr_train_data,test_data)
-    RandomForestRegreesion(corr_train_data,test_data)
-    BoostingRegression(corr_train_data,test_data)
+    accuracy = []
+    accuracy.append(RidgeRegression(corr_train_data,test_data))
+    accuracy.append( LassoRegression(corr_train_data,test_data))
+    accuracy.append(RandomForestRegreesion(corr_train_data,test_data))
+    accuracy.append(BoostingRegression(corr_train_data,test_data))
+    return accuracy
 
     # plt_data=np.concatenate((corr_test_data,test_data))
 
@@ -225,6 +228,7 @@ def RidgeRegression(train_data, train_label):
             accuracy1 = accuracy1 + 1
     accuracy1 = accuracy1 / max_iter_days
     print("Ridge Regressor Accuracy is %f" % accuracy1)
+    return accuracy1
 
 def LassoRegression(train_data, train_label):
     accuracy2 = 0
@@ -241,6 +245,7 @@ def LassoRegression(train_data, train_label):
             accuracy2 = accuracy2 + 1
     accuracy2 = accuracy2 / max_iter_days
     print("Lasso Regressor Accuracy is %f" % accuracy2)
+    return accuracy2
 
 def RandomForestRegreesion(train_data, train_label):
     accuracy3 = 0
@@ -258,6 +263,7 @@ def RandomForestRegreesion(train_data, train_label):
             accuracy3 = accuracy3 + 1
     accuracy3 = accuracy3 / max_iter_days
     print("Random Forest Regressor Accuracy is %f" % accuracy3)
+    return accuracy3
 
 def BoostingRegression(train_data, train_label):
     accuracy4 = 0
@@ -275,11 +281,12 @@ def BoostingRegression(train_data, train_label):
             accuracy4 = accuracy4 + 1
     accuracy4 = accuracy4 / max_iter_days
     print("XGBoost Regressor Accuracy is %f " % accuracy4)
+    return accuracy4
 
 if __name__=='__main__':
     ###PARAMETER
     delay = [5, 20, 40, 60, 100, 120]  # date of delays
-    # delay = [5]
+    # delay = [5,10]
     n_c = 10  # number of clusters
     iters = 5000  # number of iterations
 
@@ -295,17 +302,30 @@ if __name__=='__main__':
     print("Train Data size: " + str(len(train_data)) + " * " + str(len(train_data[0])))
     print("Test Data size: " + str(len(train_label)) + " * " + str(len(train_label[0])))
 
+    accuracy_reg = []
+    accuracy_kmeans = []
     for d in delay:
         print('Delay Days: %d' % d)
         #Traditional Regressions
-        RidgeRegression(train_data, train_label)
-        LassoRegression(train_data, train_label)
-        RandomForestRegreesion(train_data, train_label)
-        BoostingRegression(train_data, train_label)
+        accuracy_temp = []
+        accuracy_temp.append(RidgeRegression(train_data, train_label))
+        accuracy_temp.append(LassoRegression(train_data, train_label))
+        accuracy_temp.append(RandomForestRegreesion(train_data, train_label))
+        accuracy_temp.append(BoostingRegression(train_data, train_label))
+        accuracy_reg.append(accuracy_temp)
 
         #Kmeans + Regression
-        cluster_test(train_data, train_label)
+        accuracy_kmeans.append(cluster_test(train_data, train_label))
         print(' ')
+
+    filename = '/home/yuxin/Documents/Bigdata/bigdata17/result/kmeans/'+company_name
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        for i in range(len(delay)):
+            writer.writerow(['day = '+ str(delay[i])])
+            writer.writerow(accuracy_reg[i])
+            writer.writerow(accuracy_kmeans[i])
+            writer.writerow('')
 
     #max = 0
     #max_delay = 0

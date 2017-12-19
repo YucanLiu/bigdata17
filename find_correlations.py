@@ -83,7 +83,7 @@ def BoostingRegression(train_data, train_label):
     return accuracy4
 
 def cointer(stock, target):
-    sample_stock = stock[179 - d: 179 + 813 - d + 1]
+    sample_stock = stock[179 - d: 179 + test_data_days - d]
     n = sample_stock.shape[1]
     keys = sample_stock.keys()
     pvalue_max = 0.1
@@ -114,8 +114,9 @@ if __name__=='__main__':
     n_c = 10  # number of clusters
     iters = 5000  # number of iterations
 
+    company_name = "MOMO"
     train_data = pd.read_csv('/home/yuxin/Documents/Bigdata/bigdata17/close_data/output_close.csv', index_col=0).dropna(axis=1)
-    train_label = pd.read_csv('/home/yuxin/Documents/Bigdata/bigdata17/close_data/BABA_close.csv')
+    train_label = pd.read_csv('/home/yuxin/Documents/Bigdata/bigdata17/close_data/'+company_name+'_close.csv')
 
     #Row = time, Columns = companies
 
@@ -123,30 +124,37 @@ if __name__=='__main__':
     test_data_days, comp2 = train_label.shape
     gap = train_data_days - test_data_days
     max_iter_days = test_data_days - 260
-    # print("Train Data size: " + str(train_data_days) + " * " + str(comp1))
-    # print("Test Data size: " + str(test_data_days) + " * " + str(comp2))
+    print("Train Data size: " + str(train_data_days) + " * " + str(comp1))
+    print("Test Data size: " + str(test_data_days) + " * " + str(comp2))
 
     import csv
 
+    accuracy_reg = []
+    accuracy_cointer = []
     for d in delay:
         print('Delay Days: %d' % d)
-        accuracy = []
 
         #Traditional Regressions
-        accuracy.append(RidgeRegression(train_data, train_label))
-        accuracy.append(LassoRegression(train_data, train_label))
-        accuracy.append(RandomForestRegreesion(train_data, train_label))
-        accuracy.append(BoostingRegression(train_data, train_label))
+        accuracy_tmp = []
+        accuracy_tmp.append(RidgeRegression(train_data, train_label))
+        accuracy_tmp.append(LassoRegression(train_data, train_label))
+        accuracy_tmp.append(RandomForestRegreesion(train_data, train_label))
+        accuracy_tmp.append(BoostingRegression(train_data, train_label))
+        accuracy_reg.append(accuracy_tmp)
 
         #Cointergration + Regression
-        print('Cointergration + Regression: ')
-        accuracy.extend(cointer(train_data, train_label))
-        print(accuracy)
+        print('Cointegration + Regression: ')
+        accuracy_cointer.append(cointer(train_data, train_label))
         print(' ')
-        filename = str(d) + '.csv'
-        with open(filename, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(accuracy)
+
+    filename = '/home/yuxin/Documents/Bigdata/bigdata17/result/cointegration/' + company_name + '.csv'
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        for i in range(len(delay)):
+            writer.writerow(['day = '+ str(delay[i])])
+            writer.writerow(accuracy_reg[i])
+            writer.writerow(accuracy_cointer[i])
+            writer.writerow('')
 
 # d = 30
 # best = stock['WF.csv'][179-d : (179+813-d+1-400)]
