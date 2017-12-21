@@ -1,15 +1,17 @@
 import numpy as np
-import pandas as pd
+from tqdm import tqdm
 import statsmodels.api as sm
-import seaborn as sns
 import pandas as pd
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
+import csv
+
 
 def RidgeRegression(train_data, train_label):
     accuracy1 = 0
-    for i in range(max_iter_days):
+    print("Ridge Regression: ")
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -23,12 +25,14 @@ def RidgeRegression(train_data, train_label):
         if (predict1 - Y_test_pre <= 0 and Y_test - Y_test_pre <= 0) or (predict1 - Y_test_pre > 0 and Y_test - Y_test_pre > 0):
             accuracy1 = accuracy1 + 1
     accuracy1 = accuracy1 / max_iter_days
-    print("Ridge Regressor Accuracy is %f" % accuracy1)
+    print("Ridge Regression Accuracy is %f" % accuracy1)
+    print(" ")
     return accuracy1
 
 def LassoRegression(train_data, train_label):
     accuracy2 = 0
-    for i in range(max_iter_days):
+    print("Lasso Regression: ")
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -41,12 +45,14 @@ def LassoRegression(train_data, train_label):
         if (predict2 - Y_test_pre <= 0 and Y_test - Y_test_pre <= 0) or (predict2 - Y_test_pre > 0 and Y_test - Y_test_pre > 0):
             accuracy2 = accuracy2 + 1
     accuracy2 = accuracy2 / max_iter_days
-    print("Lasso Regressor Accuracy is %f" % accuracy2)
+    print("Lasso Regression Accuracy is %f" % accuracy2)
+    print(" ")
     return accuracy2
 
 def RandomForestRegreesion(train_data, train_label):
     accuracy3 = 0
-    for i in range(max_iter_days):
+    print("Random Forest Regression: ")
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -60,12 +66,14 @@ def RandomForestRegreesion(train_data, train_label):
         if (predict3 - Y_test_pre <= 0 and Y_test - Y_test_pre <= 0) or (predict3 - Y_test_pre > 0 and Y_test - Y_test_pre > 0):
             accuracy3 = accuracy3 + 1
     accuracy3 = accuracy3 / max_iter_days
-    print("Random Forest Regressor Accuracy is %f" % accuracy3)
+    print("Random Forest Regression Accuracy is %f" % accuracy3)
+    print(" ")
     return accuracy3
 
 def BoostingRegression(train_data, train_label):
     accuracy4 = 0
-    for i in range(max_iter_days):
+    print("XGBoost: ")
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -80,6 +88,7 @@ def BoostingRegression(train_data, train_label):
             accuracy4 = accuracy4 + 1
     accuracy4 = accuracy4 / max_iter_days
     print("XGBoost Regressor Accuracy is %f " % accuracy4)
+    print(" ")
     return accuracy4
 
 def cointer(stock, target):
@@ -98,7 +107,7 @@ def cointer(stock, target):
             if pvalue < pvalue_max:
                 corr_comp.append(keys[i])
         num_corr = len(corr_comp)
-        pvalue_max = pvalue_max - 0.01
+        pvalue_max = pvalue_max/2
     corr_comp_data = stock[corr_comp]
     accuracy = []
     accuracy.append(RidgeRegression(corr_comp_data, target))
@@ -107,14 +116,40 @@ def cointer(stock, target):
     accuracy.append(BoostingRegression(corr_comp_data, target))
     return accuracy
 
+def propose_best_reg():
+    max1 = 0
+    pos1 = []
+    max2 = 0
+    pos2 = []
+    regressor = ["Ridge Regression", "Lasso Regression", "Random Forest Regression", "XGBoost Regression"]
+    for i in range(len(accuracy_cointer)):
+        for j in range(len(accuracy_cointer[i])):
+            if accuracy_reg[i][j] > max1:
+                max1 = accuracy_reg[i][j]
+                pos1 = [i,j]
+
+    for i in range(len(accuracy_cointer)):
+        for j in range(len(accuracy_cointer[i])):
+            if accuracy_cointer[i][j] > max2:
+                max2 = accuracy_cointer[i][j]
+                pos2 = [i,j]
+
+    if max2 > max1:
+        print("Maximum Accuracy is %4.2f%%" % (max2 * 100))
+        print("The best regressor is " + regressor[pos2[1]] + \
+              " with cointegration with a " + str(delay[pos2[0]]) +" day delay.")
+    else:
+        print("Maximum Accuracy is %4.2f%%" % (max1 * 100))
+        print("The best regressor is " + regressor[pos1[1]] + \
+              " without cointegration with a " + str(delay[pos1[0]]) + " day delay.")
+
 if __name__=='__main__':
     ###PARAMETER
-    delay = [5, 20, 40, 60, 100, 120]  # date of delays
-    # delay = [5]
+    delay = [5, 20, 40, 60, 100, 120]  # day of delays
+    company_name = "BABA" # target company name
     n_c = 10  # number of clusters
     iters = 5000  # number of iterations
 
-    company_name = "MOMO"
     train_data = pd.read_csv('/home/yuxin/Documents/Bigdata/bigdata17/close_data/output_close.csv', index_col=0).dropna(axis=1)
     train_label = pd.read_csv('/home/yuxin/Documents/Bigdata/bigdata17/close_data/'+company_name+'_close.csv')
 
@@ -124,10 +159,9 @@ if __name__=='__main__':
     test_data_days, comp2 = train_label.shape
     gap = train_data_days - test_data_days
     max_iter_days = test_data_days - 260
-    print("Train Data size: " + str(train_data_days) + " * " + str(comp1))
-    print("Test Data size: " + str(test_data_days) + " * " + str(comp2))
 
-    import csv
+    # print("Train Data size: " + str(train_data_days) + " * " + str(comp1))
+    # print("Test Data size: " + str(test_data_days) + " * " + str(comp2))
 
     accuracy_reg = []
     accuracy_cointer = []
@@ -146,6 +180,8 @@ if __name__=='__main__':
         print('Cointegration + Regression: ')
         accuracy_cointer.append(cointer(train_data, train_label))
         print(' ')
+
+    propose_best_reg()
 
     filename = '/home/yuxin/Documents/Bigdata/bigdata17/result/cointegration/' + company_name + '.csv'
     with open(filename, 'w', newline='') as csvfile:

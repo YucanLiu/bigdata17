@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+from tqdm import tqdm
 from sklearn.cluster import KMeans
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.ensemble import RandomForestRegressor
@@ -8,11 +9,6 @@ from xgboost import XGBRegressor
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.utils import check_random_state
-
-company_name = 'MOMO.csv'
-train_data_path = 'data_all/output.csv'
-# train_data_path = 'test1/samples.csv'
-test_data_path = 'data_all/' + company_name
 
 class KernelKMeans(BaseEstimator, ClusterMixin):
     """
@@ -178,44 +174,18 @@ def cluster_test(train_data,test_data):
         # print("Correlating Test Data size: " + str(len(corr_train_data)) + " * " + str(len(corr_train_data[0])))
 
     print("KMeans + Regression Result: ")
+    print(" ")
     accuracy = []
     accuracy.append(RidgeRegression(corr_train_data,test_data))
-    accuracy.append( LassoRegression(corr_train_data,test_data))
+    accuracy.append(LassoRegression(corr_train_data,test_data))
     accuracy.append(RandomForestRegreesion(corr_train_data,test_data))
     accuracy.append(BoostingRegression(corr_train_data,test_data))
     return accuracy
 
-    # plt_data=np.concatenate((corr_test_data,test_data))
-
-    # for x in range(len(plt_data)):
-    #     for y in range(len(plt_data[0])):
-    #         if plt_data[x][y] >= 0:
-    #             plt_data[x][y] = 1
-    #         else:
-    #             plt_data[x][y] = -1
-    # print(plt_data)
-
-    #sum=0
-    #for x in range(len(plt_data)):
-    #    accuracy = np.mean(plt_data[x] == plt_data[len(plt_data)-1])
-    #    if(accuracy != 1.0):
-    #        sum+=accuracy
-    #    # print(accuracy)
-    # print(sum)
-    # print('average accuracy:',sum/(len(plt_data)-1))
-    # return sum/(len(plt_data)-1)
-
-    #import matplotlib.pyplot as mpl
-    # x = np.asarray([range(len(corr_test_data))])
-    #plt_data=plt_data.transpose()
-    #mpl.plot(plt_data,".")
-    #mpl.grid(True)
-
-    #mpl.show()
-
 def RidgeRegression(train_data, train_label):
     accuracy1 = 0
-    for i in range(max_iter_days):
+    print('Ridge Regression:')
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -227,12 +197,14 @@ def RidgeRegression(train_data, train_label):
         if (predict1 <= 0 and Y_test <= 0) or (predict1 > 0 and Y_test > 0):
             accuracy1 = accuracy1 + 1
     accuracy1 = accuracy1 / max_iter_days
-    print("Ridge Regressor Accuracy is %f" % accuracy1)
+    print("Ridge Regression Accuracy is %f" % accuracy1)
+    print(" ")
     return accuracy1
 
 def LassoRegression(train_data, train_label):
     accuracy2 = 0
-    for i in range(max_iter_days):
+    print('Lasso Regression:')
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -244,12 +216,15 @@ def LassoRegression(train_data, train_label):
         if (predict2 <= 0 and Y_test <= 0) or (predict2 > 0 and Y_test > 0):
             accuracy2 = accuracy2 + 1
     accuracy2 = accuracy2 / max_iter_days
-    print("Lasso Regressor Accuracy is %f" % accuracy2)
+    print("Lasso Regression Accuracy is %f" % accuracy2)
+    print(" ")
+
     return accuracy2
 
 def RandomForestRegreesion(train_data, train_label):
     accuracy3 = 0
-    for i in range(max_iter_days):
+    print('Ramdom Forest Regression:')
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -262,12 +237,15 @@ def RandomForestRegreesion(train_data, train_label):
         if (predict3 <= 0 and Y_test <= 0) or (predict3 > 0 and Y_test > 0):
             accuracy3 = accuracy3 + 1
     accuracy3 = accuracy3 / max_iter_days
-    print("Random Forest Regressor Accuracy is %f" % accuracy3)
+    print("Random Forest Regression Accuracy is %f" % accuracy3)
+    print(" ")
+
     return accuracy3
 
 def BoostingRegression(train_data, train_label):
     accuracy4 = 0
-    for i in range(max_iter_days):
+    print("XGBoost Regression:")
+    for i in tqdm(range(max_iter_days)):
         X_train = train_data[gap + i - d : gap + 260 + i - d]
         Y_train = train_label[i : 260 + i]
         X_test = train_data[gap + 260 + i - d : gap + 261 + i - d]
@@ -280,15 +258,49 @@ def BoostingRegression(train_data, train_label):
         if (predict4 <= 0 and Y_test <= 0) or (predict4 > 0 and Y_test > 0):
             accuracy4 = accuracy4 + 1
     accuracy4 = accuracy4 / max_iter_days
-    print("XGBoost Regressor Accuracy is %f " % accuracy4)
+    print("XGBoost Regression Accuracy is %f " % accuracy4)
+    print(" ")
+
     return accuracy4
 
+def propose_best_reg():
+    max1 = 0
+    pos1 = []
+    max2 = 0
+    pos2 = []
+    regressor = ["Ridge Regression", "Lasso Regression", "Random Forest Regression", "XGBoost Regression"]
+    for i in range(len(accuracy_kmeans)):
+        for j in range(len(accuracy_kmeans[i])):
+            if accuracy_reg[i][j] > max1:
+                max1 = accuracy_reg[i][j]
+                pos1 = [i,j]
+
+    for i in range(len(accuracy_kmeans)):
+        for j in range(len(accuracy_kmeans[i])):
+            if accuracy_kmeans[i][j] > max2:
+                max2 = accuracy_kmeans[i][j]
+                pos2 = [i,j]
+
+    if max2 > max1:
+        print("Maximum Accuracy is %4.2f%%" % (max2 * 100))
+        print("The best regressor is " + regressor[pos2[1]] + \
+              " with k-means with a " + str(delay[pos2[0]]) +" day delay.")
+    else:
+        print("Maximum Accuracy is %4.2f%%" % (max1 * 100))
+        print("The best regressor is " + regressor[pos1[1]] + \
+              " without k-means with a " + str(delay[pos1[0]]) + " day delay.")
+
 if __name__=='__main__':
+
     ###PARAMETER
     delay = [5, 20, 40, 60, 100, 120]  # date of delays
-    # delay = [5,10]
+    company_name = 'BABA' # target company name
+
     n_c = 10  # number of clusters
     iters = 5000  # number of iterations
+
+    train_data_path = 'data_all/output.csv'
+    test_data_path = 'data_all/' + company_name + '.csv'
 
     #Row = time, Columns = companies
     samples, target = import_data( )
@@ -299,13 +311,15 @@ if __name__=='__main__':
     test_data_days = len(train_label)
     gap = train_data_days - test_data_days
     max_iter_days = test_data_days - 260
-    print("Train Data size: " + str(len(train_data)) + " * " + str(len(train_data[0])))
-    print("Test Data size: " + str(len(train_label)) + " * " + str(len(train_label[0])))
+
+    # print("Train Data size: " + str(len(train_data)) + " * " + str(len(train_data[0])))
+    # print("Test Data size: " + str(len(train_label)) + " * " + str(len(train_label[0])))
 
     accuracy_reg = []
     accuracy_kmeans = []
     for d in delay:
         print('Delay Days: %d' % d)
+
         #Traditional Regressions
         accuracy_temp = []
         accuracy_temp.append(RidgeRegression(train_data, train_label))
@@ -318,6 +332,8 @@ if __name__=='__main__':
         accuracy_kmeans.append(cluster_test(train_data, train_label))
         print(' ')
 
+    propose_best_reg()
+
     filename = '/home/yuxin/Documents/Bigdata/bigdata17/result/kmeans/'+company_name
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -327,18 +343,3 @@ if __name__=='__main__':
             writer.writerow(accuracy_kmeans[i])
             writer.writerow('')
 
-    #max = 0
-    #max_delay = 0
-    #for x in range(1,100):
-    #    d = 96
-    #    print('\ncurrent date of delays:', x)
-    #    accuracy = cluster_test()
-    #    if(accuracy > max):
-    #        max = accuracy
-    #        max_delay = x
-
-    #print ('\nThe best accuracy is:', max, 'when delay is:', max_delay)
-
-# Techniques
-# Bussiness
-# Big Data Aspect
